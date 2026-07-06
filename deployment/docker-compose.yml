@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  redpanda:
+    image: redpandadata/redpanda:v23.2.1
+    container_name: redpanda
+    ports:
+      - "9092:9092"
+      - "9644:9644"
+    command:
+      - redpanda
+      - start
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --overprovisioned
+      - --node-id 0
+      - --kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+      - --pandaproxy-addr 0.0.0.0:8082
+      - --advertise-pandaproxy-addr localhost:8082
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminpassword
+      POSTGRES_DB: mlops_db
+    ports:
+      - "5432:5432"
+
+  mlflow:
+    image: bitnami/mlflow:2
+    container_name: mlflow
+    ports:
+      - "5000:5000"
+    environment:
+      MLFLOW_BACKEND_STORE_URI: postgresql://admin:adminpassword@postgres:5432/mlops_db
+    depends_on:
+      - postgres
+
+  api:
+    build: 
+      context: .
+      dockerfile: deployment/Dockerfile
+    container_name: prediction_api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mlflow
+      - redpanda
