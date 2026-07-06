@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import './index.css';
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -38,7 +38,7 @@ function App() {
   const measureLatency = async () => {
     try {
       const start = performance.now();
-      await fetch('http://localhost:8000/health');
+      await fetch(import.meta.env.VITE_HEALTH_URL || 'http://localhost:8000/health');
       const end = performance.now();
       setLatency(Math.round(end - start));
     } catch (e) {
@@ -77,7 +77,7 @@ function App() {
     const connectWS = () => {
       if (!isComponentMounted) return;
       setConnectionStatus('connecting');
-      ws = new WebSocket('ws://localhost:8000/api/ws');
+      ws = new WebSocket(import.meta.env.VITE_WS_URL || 'ws://localhost:8000/api/ws');
 
       ws.onopen = () => {
         if (!isComponentMounted) return;

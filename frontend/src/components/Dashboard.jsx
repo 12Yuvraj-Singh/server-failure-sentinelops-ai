@@ -12,7 +12,7 @@ import ServerCard from './ServerCard';
 import StatusBadge from './Common/StatusBadge';
 import Profile from './Profile';
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 // Helper to determine server region based on ID
 const getServerRegionName = (serverId) => {
